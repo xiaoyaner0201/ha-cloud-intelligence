@@ -31,5 +31,5 @@ a public account-login API specification or safe-operation certification. These
 references do not supply user credentials or an Android export mechanism. No
 proprietary client code, SDK source, vendor secret or vendor branding asset is distributed;
 the repository's blue/cyan icon is original artwork under the repository Apache-2.0 license.
-See [verification boundaries](verification.md) for actual offline evidence and
-remaining live-device/release acceptance.
+See [verification boundaries](verification.md) for offline evidence, recorded live
+acceptance and remaining release work.

@@ -10,7 +10,8 @@ only, with full pre-read, fixed one-shot switch=0/1 and new post-send authentica
 Observe window verification of target and unchanged other settings. Unknown
 send outcomes (including cancellation) never trigger retry or optimistic state.
 Polling includes one fixed `refresh=1` request per report session. No pressure,
-mode, speed or arbitrary setter exists. Physical switch writes are not yet tested.
+mode, speed or arbitrary setter exists. Physical off/on and unchanged-setting
+checks passed in the recorded [live acceptance](docs/verification.md#live-acceptance).
 This interface is not an automatic refill controller or safety-rated stop. Do not
 use this integration for pressure regulation, protection or any safety function.
 See [requirements](docs/requirements.md).

@@ -1,8 +1,9 @@
 # Contributing
 
 Read [project guidance](AGENTS.md), [requirements](docs/requirements.md) and
-[architecture](docs/architecture.md). This is a candidate local-device adapter,
-not account login or cloud discovery. No production release is claimed.
+[architecture](docs/architecture.md). This is a Beta local-device adapter,
+not account login or cloud discovery. The tested live scope and remaining limits
+are recorded in [verification](docs/verification.md#live-acceptance).
 
 Use Python 3.13.12 with project-local tools from
 [requirements-dev.txt](requirements-dev.txt). HA lifecycle tests run separately

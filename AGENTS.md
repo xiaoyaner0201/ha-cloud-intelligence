@@ -3,7 +3,7 @@
 Read [requirements](docs/requirements.md), [architecture](docs/architecture.md) and
 [contributing](CONTRIBUTING.md) before changing behavior.
 
-- This is a candidate HA local-authorization adapter, not account/cloud discovery.
+- This is a Beta HA local-authorization adapter, not account/cloud discovery.
 - One standard config entry per device; multiple entries are supported. Preserve
   immutable productKey/deviceName identities across address/credential changes.
 - First model: Wilo HiMulti-1 WiFi, exact public productKey `a15zaTr5sp1`.
@@ -40,7 +40,7 @@ Read [requirements](docs/requirements.md), [architecture](docs/architecture.md) 
   total budget. Bind conflicts fail clearly: no fallback, retries, reuse options,
   shared sockets, persistent listener or port in config/diagnostics/repr.
   New clients/restarts may choose new ports; local close is not remote teardown.
-  Endpoint stability is a Beta live-comparison candidate, not a proven root-cause fix.
+  Stable endpoints passed restricted live acceptance, not a proven root-cause fix.
 - Keep exact peer/token/URI/session/envelope checks, ctype 0 encrypted decoding,
   fixed-zero Observe support and session-scoped bounded MID/digest deduplication.
   Opt 1 has no packet MAC/replay protection: do not claim otherwise.
@@ -49,11 +49,12 @@ Read [requirements](docs/requirements.md), [architecture](docs/architecture.md) 
   stay unknown, never zero/off. Failed polls make entities unavailable.
 - Start behavior changes with failing tests; run `make check` before committing.
   It includes real HA 2026.9.1 / Python 3.14 offline container tests and mutations.
-  Power control is an offline candidate, not yet physically write-tested; all
-  physical off/on, loss/recovery and unchanged-setting gates remain outstanding.
+  Live acceptance covers physical off/on, unchanged settings and native-HA refill
+  recovery/restart; loss/cancellation fault paths still have offline evidence only.
+  See docs/verification.md for the tested scope and remaining firmware/long-run work.
   `make check-core` remains a pure Python 3.13 boundary.
 - Use synthetic fixtures only, never real credentials/IDs/readings, private paths,
   proprietary client/SDK sources, vendor secrets or platform branding assets.
 - Keep English/Chinese/Japanese docs and en/zh-Hans/zh-Hant/ja basic UI aligned.
-- Candidate offline tests are not live-device, production or HACS-listing approval.
+- Offline checks and recorded live acceptance are distinct; neither is HACS-listing approval.
   No live networking, production access, push or release is part of default tests.

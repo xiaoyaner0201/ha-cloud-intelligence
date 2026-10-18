@@ -35,6 +35,71 @@ A missing dependency/image is a failed prerequisite, not a skipped passing test.
 - `make external-links`: optional bounded HTTP link audit, separate from default
   offline checks; not an install or release gate that runs silently.
 
+## Live acceptance
+
+These separately authorized observations used a real Wilo HiMulti-1 WiFi and
+actual HA 2026.9.1. They cover the runtime at `346f3a5`; the 0.2.0b0 preparation
+updates documentation and package version, not that runtime behavior. Default
+checks remain offline. The native HA refill automation used below is maintained
+separately and is not part of this repository.
+
+### Stable endpoints
+
+A restricted long-running comparison used the same `LocalClient` every 120 seconds.
+All 61/61 consecutive rounds succeeded over about two hours. Every round returned
+all 12 states, the auth/Observe source port stayed unchanged, and receive times
+continued advancing. The runtime then continued as part of a production installation.
+During about 10 hours of observation after the final installation, no polling
+failure made entities unavailable.
+
+This does not identify the firmware cause of earlier stream loss. Local socket
+close is not remote session/observer cleanup, and reauthentication on the same
+endpoint is not a guaranteed cleanup or recovery mechanism.
+
+### Enable-permission control
+
+An isolated, bounded physical off→on cycle completed in about 1.2 seconds with
+complete write readback and unchanged other writable settings. There was no
+uncertain outcome and no retry.
+
+The separately maintained native HA refill automation then passed five scenarios
+in real HA 2026.9.1:
+
+- Two normal cycles: permission was disabled about 0.54/0.58 seconds after flush
+  end and restored about 120 seconds later.
+- Initially disabled permission was not turned on.
+- Manual off took priority and cancelled automatic restore.
+- HA restart during the pause recovered safely.
+
+Nine subsequent real daily-use cycles disabled permission 0.505–0.627 seconds
+after flush end and restored it after 119.2–120.0 seconds. Every write passed the
+built-in post-write checks: target pressure, mode, starting pressure ratio and
+target speed were unchanged. No uncertain outcome occurred.
+
+### Poll/control collision and recovery
+
+The first production acceptance of an earlier version failed: the 120-second
+restore overlapped a periodic poll, returned `Local operation already in progress`
+and did not restore permission. Safe manual recovery followed.
+
+The corrected runtime bounds waiting for an in-flight poll, claims the control
+slot before waiting, retains a 10-second total budget, refreshes outside debounce
+and propagates an absolute deadline. After these fixes, production logs contained
+zero errors of that kind. This closes the observed collision regression within
+the acceptance scope, not every possible failure/recovery condition.
+
+### Remaining limits
+
+Only HiMulti-1 is supported. ALCS opt 1 has no packet MAC/replay protection.
+Default 120-second polling does not reveal the second-by-second motor-stop moment;
+enable permission is not a safety-rated stop. Longer firmware stability, firmware
+variants, live packet-loss/cancellation fault recovery, credential expiry/revocation
+and browser visual QA remain open. This is not a HACS default-store listing.
+
+The offline records below are retained as historical results for their stated
+baselines. Their lack of physical testing describes those runs, not the later
+live acceptance above.
+
 ## Explicit control-switch refresh regression
 
 A real HA request-refresh cooldown was primed while the synthetic physical pump
@@ -218,8 +283,11 @@ timeout, socket cleanup and standalone packaging.
 
 Offline tests do **not** prove this adapter's live-device operation, UI browser rendering,
 indefinite authorization validity, automatic renewal, extended unattended operation,
-other firmware/models, HACS store validation or production approval. A separate authorized
-smoke check verified initial setup, 12 native states, local receive timestamps, a service
+other firmware/models, HACS store validation or production approval.
+
+### Earlier read-only live smoke (historical)
+
+A separate authorized smoke check verified initial setup, 12 native states, local receive timestamps, a service
 process/API health check and the absence of control services on one real HA host. Its first
 roughly 120-second scheduled poll reported telemetry unavailable; the next automatic poll
 recovered all 12 states with stable registry IDs. This short observation is not long-term

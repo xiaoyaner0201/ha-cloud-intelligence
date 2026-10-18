@@ -74,7 +74,7 @@ print("standalone component imports with real Home Assistant")
     def test_manifest_locale_and_narrow_opt_in_platform_contract(self):
         root = Path(__file__).resolve().parents[2]
         manifest = validate_package()
-        self.assertEqual(manifest["version"], "0.1.0b0")
+        self.assertEqual(manifest["version"], "0.2.0b0")
         component = root / "custom_components/cloud_intelligence"
         # Explicitly authorized exception to the former no-switch package boundary.
         self.assertTrue((component / "switch.py").is_file())

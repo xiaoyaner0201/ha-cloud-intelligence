@@ -1,6 +1,6 @@
 # Requirements and acceptance boundaries
 
-## Delivered candidate scope
+## Delivered Beta scope
 
 An independent community HA custom integration with HACS repository layout. The
 first slice imports **one device's local authorization**, not an account session
@@ -15,10 +15,12 @@ Android bridge, Keychain access, client SDK or continuously running app is neede
 by runtime code. The pure-Python core remains independently testable; its packaged
 copy must pass a byte-for-byte parity check.
 
-Offline acceptance uses actual HA 2026.9.1 / Python 3.14.6. These tests are synthetic,
-not live-device or production acceptance of this adapter. HACS metadata and a
-manual-install ZIP builder are delivered; no release or default-store listing is
-implied. See [installation and credential prerequisites](../README.md).
+Offline acceptance uses actual HA 2026.9.1 / Python 3.14.6 with synthetic transport.
+Separate [live acceptance](verification.md#live-acceptance) covers stable endpoints,
+physical enable writes and native-HA refill/restart scenarios on HiMulti-1.
+HACS metadata and a manual-install ZIP builder are delivered; those artifacts alone
+do not imply publication or a default-store listing.
+See [installation and credential prerequisites](../README.md).
 
 ## Local authorization lifecycle
 
@@ -63,13 +65,14 @@ introduced. Ports are not reserved while sockets are closed: a conflicting bind
 fails clearly, with no alternate-port fallback or extra retries. A new client or
 process may choose a new port. The port is absent from config, diagnostics and repr.
 
-This Beta endpoint-stability candidate reduces endpoint churn for a separately
-approved single-variable live comparison. Local close is not remote session or
-observer teardown; same-endpoint reauthentication may permit reuse/cleanup but
-neither guarantees it nor recovers an unresponsive device. No RFC Observe=1/RST
-cleanup, heartbeat or firmware/client root-cause diagnosis is assumed. Independent
-review and live long-running validation remain required; no root-cause fix or
-release is claimed.
+Stable endpoints passed a restricted live comparison: the same `LocalClient` ran
+61/61 complete 12-state rounds every 120 seconds over about two hours, retaining
+its auth/Observe source port with advancing receive times. Subsequent production
+use included about 10 hours of final-installation observation without a poll failure
+making entities unavailable. Longer firmware stability remains open. Local close
+is not remote session or observer teardown; same-endpoint reauthentication does
+not guarantee cleanup or recovery. No RFC Observe=1/RST cleanup, heartbeat or
+firmware/client root-cause diagnosis is assumed.
 
 Polling property/set is a fixed report request:
 
@@ -134,10 +137,15 @@ The only operating exception is the following opt-in experimental contract:
 Only local receive times exist; no device timestamp or full freshness/anti-replay
 proof is promised. Opt 1 has no packet MAC: a new window excludes old-session
 traffic but cannot prove absence of device-side cached state or malicious replay.
-This candidate has no live switch-write validation, production approval or
-root-cause-fix claim. Independent review and separately authorized physical off/on,
-unchanged settings, enable-vs-motor, loss/cancel/recovery and long-running/firmware
-acceptance remain gates. Declared ranges are metadata, not safe-setting advice.
+Physical off/on and unchanged-setting checks passed, followed by five native-HA
+refill/restart scenarios and nine daily-use cycles. Every observed write passed
+the built-in verification with no uncertain outcome. The earlier poll/control
+restore failure was safely recovered manually; after the arbitration, fresh-refresh
+and absolute-deadline fixes, production logs contained zero errors of that kind.
+See [live acceptance](verification.md#live-acceptance) for timing and scope.
+Live packet-loss/cancellation fault recovery, credential expiry/revocation and
+longer firmware stability remain open; offline regressions do not close those
+physical gates. Declared ranges are metadata, not safe-setting advice.
 
 Observe GET uses `/sys/{productKey}/{deviceName}/thing/event/property/post`.
 Notifications have exact method/version/envelope/property allowlists and session
@@ -254,9 +262,17 @@ A future cloud/shared-device adapter must explicitly review migration semantics.
 - [Verification](verification.md): pinned tools, branch coverage ≥90%, exact core
   parity and two core plus eleven HA/protocol assertion-killing mutations.
 
-Default checks are offline and never contact production. Further release gates
-include independent review, real-device acceptance of this actual adapter,
-credential expiry/revocation/long-running behavior, firmware variants and a
-separately approved release/HACS distribution check. No official affiliation,
-full language coverage, general model support, unlimited authorization validity
-or production approval is claimed.
+Default checks are offline and never contact production. The closed live gates
+for the tested HiMulti-1 runtime are stable-endpoint comparison, physical off/on
+with unchanged other settings, the five native-HA refill scenarios (including
+manual priority and restart recovery), and nine subsequent daily-use cycles.
+These are recorded observations, not a firmware root-cause diagnosis.
+
+Open work includes live packet-loss/cancellation fault recovery, credential
+expiry/revocation, longer unattended firmware stability, firmware variants,
+browser visual QA, independent release review and a separately approved
+release/HACS distribution check. Only HiMulti-1 is supported. Default 120-second
+polling cannot establish the second-by-second motor-stop moment, and enable
+permission is not a safety-rated stop. Opt 1 still lacks packet MAC/replay
+protection. No official affiliation, full language coverage, general model
+support, unlimited authorization validity or HACS default-store listing is claimed.

@@ -22,16 +22,16 @@ No vendor affiliation or certification is implied.
   synthetic transport; separate live-device checks cover configuration, 12 native
   states, automatic polling and a full HA process restart. The saved entry and
   all device/entity IDs survived the restart, with fresh readings and no re-import.
-- A scheduled read failed once during the short live observation; the following
-  poll recovered automatically. Extended unattended operation, visual browser QA
-  and other models remain outside the verified scope.
+- With stable endpoints and the control fixes installed, about 10 hours of final
+  installation observation had no poll failure that made entities unavailable.
+  Longer firmware stability, visual browser QA and other models remain unverified.
 
 Polling sends one fixed `refresh=1` report request per session. The default remains
 12 read-only entities. The only opt-in operating extension is experimental enable
 permission (`switch`), not motor running (`run`); pressure, mode and speed writes,
 arbitrary setters, refresh buttons and automatic command retries remain forbidden.
 
-## Experimental enable control (not live-device validated)
+## Experimental enable control (default off, live-device validated)
 
 In the entry's options, explicitly enable `enable_power_control` (default false).
 Options reload the existing entry; the new HA standard switch has a separate
@@ -71,12 +71,26 @@ with its normal unavailable-target warning and performs no write.
 ALCS opt 1 still has no packet MAC/replay protection: the new window rejects old
 session packets, not all malicious replay or device-side cached state.
 
-This candidate has only offline synthetic tests, no physical switch-write test,
-no production approval and no root-cause-fix claim. Independent review and separately
-authorized physical off/on, unchanged-setting, motor/enable, loss/cancellation,
-refill recovery and long-running/firmware acceptance remain release gates.
+Live acceptance on HiMulti-1 included an isolated, bounded off/on cycle of about
+1.2 seconds, with complete readback, unchanged other writable settings, no uncertain
+outcome and no retry. In real HA 2026.9.1, a separately maintained native HA refill
+automation (not included here) passed five scenarios: two normal cycles (off about
+0.54/0.58 seconds after flush end, restored about 120 seconds later), initially off
+staying off, manual off cancelling automatic restore, and safe recovery after HA
+restarted during a pause. Nine subsequent daily-use cycles disabled permission in
+0.505–0.627 seconds and restored it after 119.2–120.0 seconds. Every write passed
+the built-in readback checks, with target pressure, mode, starting pressure ratio
+and target speed unchanged; there were no uncertain outcomes.
 
-## Endpoint-stability candidate (not yet live-validated)
+An earlier production acceptance failed when the 120-second restore collided with
+a poll and returned `Local operation already in progress`; safe manual recovery
+was required. After bounded poll waiting, control-slot claiming, fresh refresh
+outside debounce and the absolute 10-second deadline, production logs contained
+zero errors of that kind. These observations validate the tested scope, not a
+firmware root cause or all loss/cancellation and long-running conditions. See
+[Live acceptance](docs/verification.md#live-acceptance).
+
+## Stable endpoints (live-device validated)
 
 One client now remembers its first OS-selected auth/Observe UDP source port and
 rebinds it after success, failure, timeout or cancellation. Every read still checks
@@ -88,12 +102,16 @@ added. A conflicting bind fails rather than switching ports; the port is not
 reserved between reads, persisted, or exposed in diagnostics/repr. A new client or
 process may select a different port.
 
-This Beta change only reduces endpoint churn for a single-variable live comparison.
-The earlier live observations above do not validate this candidate. Local close
-is not remote session/observer teardown, and same-endpoint reauthentication is not
-a guaranteed cleanup or recovery. No Observe=1/RST cleanup or hardware root-cause
-fix is claimed. Independent review and restricted long-running device acceptance
-remain required before release.
+A restricted live HiMulti-1 comparison used the same `LocalClient` every 120 seconds:
+61/61 consecutive rounds succeeded over about two hours, each with all 12 states,
+an unchanged auth/Observe source port and advancing receive times. It then continued
+in the production installation; the final approximately 10-hour observation had no
+poll failure that made entities unavailable.
+
+This validates the observed endpoint behavior, not the firmware cause of earlier
+stream loss. Local close is not remote session/observer teardown, and same-endpoint
+reauthentication is not guaranteed cleanup or recovery. No Observe=1/RST cleanup
+or hardware root-cause fix is claimed; longer firmware stability remains open.
 
 ## Prepare your authorization
 
@@ -170,8 +188,10 @@ is for manual installation.
   `locally_received_at` attribute records this HA host's actual receive time,
   **not** a device timestamp; absent values have no receive time.
 
-Further testing is needed for firmware differences, credential expiry/revocation,
-extended unattended operation and browser visual QA.
+The default 120-second polling interval cannot show the second-by-second moment
+when the motor stops. This is not a safety-rated stop. Further testing is needed
+for firmware differences, credential expiry/revocation, live loss/cancellation
+recovery, extended unattended operation and browser visual QA.
 Complete account discovery, Google sign-in, automatic renewal and operating
 controls other than the opt-in enable switch are outside this candidate. Basic UI
 locales are en, zh-Hans, zh-Hant and

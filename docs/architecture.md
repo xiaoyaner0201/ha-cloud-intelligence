@@ -57,11 +57,12 @@ new ports; stability is not promised across restart or source-IP changes.
 a `finally` releases its guard on every exit. There is no lock queue or added wait
 outside the existing 10-second accepted-read budget. Other clients remain independent.
 Coordinator unload still cancels and awaits the active read, releasing its socket.
-This minimal Beta candidate changes endpoint allocation, not polling/Observe
-architecture. Local close does not tear down remote sessions/observers, and repeated
-auth on the same endpoint is not a proven remote-cleanup mechanism. No heartbeat,
-Observe cancellation or hardware root-cause fix is claimed. Independent review
-and a restricted live long-stability comparison remain gates.
+This Beta change affects endpoint allocation, not polling/Observe architecture.
+The restricted live endpoint comparison passed; see [live acceptance](verification.md#live-acceptance).
+Local close does not tear down remote sessions/observers, and repeated auth on the
+same endpoint is not a proven remote-cleanup mechanism. No heartbeat, Observe
+cancellation or hardware root-cause fix is claimed; longer firmware stability
+remains open.
 
 Polls allow only the literal `refresh=1` report request, once after subscription.
 The experimental `LocalClient.set_power(bool)` extension is strict opt-in (default
@@ -106,7 +107,9 @@ with unavailable instead of cached success. A cancelled refresh explicitly notif
 listeners because HA can set its failure flag without publishing state on cancellation.
 Missing switch reports remain unknown. No new scheduler, client or policy is added;
 control's independent complete fresh pre-read remains mandatory.
-No live switch-write, root-cause-fix or production approval is claimed.
+Physical off/on, unchanged-setting and native-HA refill/restart checks passed in
+[live acceptance](verification.md#live-acceptance); those observations do not prove
+a firmware root-cause fix or all loss/cancellation and long-running conditions.
 
 Initial failures use HA's standard ConfigEntryNotReady or ConfigEntryAuthFailed
 paths. Later connection failures make coordinator entities unavailable; auth
